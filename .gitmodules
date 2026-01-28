@@ -1,0 +1,9 @@
+[submodule "DeepResearch"]
+	path = DeepResearch
+	url = https://github.com/Alibaba-NLP/DeepResearch.git
+[submodule "FinRL"]
+	path = FinRL
+	url = https://github.com/AI4Finance-Foundation/FinRL.git
+[submodule "vnpy"]
+	path = vnpy
+	url = https://github.com/vnpy/vnpy.git

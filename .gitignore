@@ -1,0 +1,25 @@
+﻿# Workbench local artifacts
+/data/
+**/__pycache__/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.pyc
+
+# Local env
+.env
+.env.*
+.venv/
+venv/
+
+# IDE
+.vscode/
+.idea/
+
+# Logs / temp outputs
+*.log
+*.out
+*.err
+
+# Local tooling
+.claude/

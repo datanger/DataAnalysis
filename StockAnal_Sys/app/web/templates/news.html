@@ -1,0 +1,306 @@
+{% extends "layout.html" %}
+
+{% block title %}消息面 - 智能分析系统{% endblock %}
+
+{% block content %}
+<div class="finance-portal-container">
+  <!-- 左侧导航栏（保留原始门户结构） -->
+  <div class="portal-sidebar">
+    <div class="sidebar-menu">
+      <div class="sidebar-header">
+        <h5><i class="fas fa-newspaper"></i> 消息面</h5>
+      </div>
+      <div class="sidebar-content">
+        <ul class="sidebar-nav">
+          <li><a href="/" target="_blank" rel="noopener"><i class="fas fa-home"></i> 返回首页</a></li>
+          <li><a href="/dashboard" target="_blank" rel="noopener"><i class="fas fa-chart-line"></i> 智能分析</a></li>
+          <li><a href="/market_scan" target="_blank" rel="noopener"><i class="fas fa-search"></i> 选股雷达</a></li>
+          <li><a href="/portfolio" target="_blank" rel="noopener"><i class="fas fa-briefcase"></i> 组合管家</a></li>
+          <li><a href="/risk_monitor" target="_blank" rel="noopener"><i class="fas fa-exclamation-triangle"></i> 风险预警</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- 中间新闻区域 -->
+  <div class="portal-news">
+    <div class="news-header">
+      <h5><i class="fas fa-bolt"></i> 实时快讯（来源：财联社）</h5>
+      <div class="news-tools">
+        <button class="btn btn-sm btn-outline-primary refresh-news-btn" id="btnRefreshNews" type="button">
+          <i class="fas fa-sync-alt"></i>
+        </button>
+        <div class="form-check form-check-inline ms-2">
+          <input class="form-check-input" type="checkbox" id="only-important">
+          <label class="form-check-label" for="only-important">只看重要</label>
+        </div>
+      </div>
+    </div>
+    <div class="news-content" id="news-timeline">
+      <div class="text-center py-5">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Loading...</span>
+        </div>
+        <p class="mt-2">加载新闻中...</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 右侧热点区域 -->
+  <div class="portal-hotspot">
+    <div class="hotspot-header">
+      <h5><i class="fas fa-fire"></i> 热点</h5>
+    </div>
+    <div class="hotspot-content" id="hotspot-list">
+      <div class="text-center py-5">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Loading...</span>
+        </div>
+        <p class="mt-2">加载热点中...</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 页脚固定区域 -->
+  <div class="portal-footer">
+    <div class="portal-status-bar">
+      <div class="status-item" id="current-time">
+        <i class="fas fa-clock"></i> <span>--:--:--</span>
+      </div>
+      <div class="status-item" id="refresh-time">刷新: --:--</div>
+      <div class="market-status">
+        <div class="status-item" id="china-market">
+          <i class="fas fa-circle status-closed"></i> <span class="status-text">A股: --</span>
+        </div>
+        <div class="status-item" id="hk-market">
+          <i class="fas fa-circle status-closed"></i> <span class="status-text">港股: --</span>
+        </div>
+        <div class="status-item" id="us-market">
+          <i class="fas fa-circle status-closed"></i> <span class="status-text">美股: --</span>
+        </div>
+      </div>
+    </div>
+    <div class="ticker-news" id="ticker-container">
+      <div class="ticker-wrapper">
+        <div class="ticker-item">加载最新消息中...</div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  let refreshCountdown = 600; // 10分钟倒计时
+
+  function escHtml(s) {
+    return String(s || "")
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll("\"", "&quot;")
+      .replaceAll("'", "&#39;");
+  }
+
+  function fmtTime(s) {
+    const t = String(s || "");
+    // Some sources return full time, keep HH:MM:SS if present
+    const m = t.match(/(\d{1,2}:\d{2}:\d{2})/);
+    return m ? m[1] : (t || "--:--");
+  }
+
+  function isImportant(n) {
+    const text = `${n.title || ""} ${n.content || ""}`;
+    const keywords = ["重要", "利好", "重磅", "突发", "关注"];
+    return keywords.some(k => text.includes(k));
+  }
+
+  async function apiGet(url) {
+    const res = await fetch(url);
+    const json = await res.json().catch(() => ({}));
+    if (!json || json.success !== true) {
+      throw new Error(json.error || `HTTP ${res.status}`);
+    }
+    return json;
+  }
+
+  async function refreshNewsData() {
+    // Best-effort: trigger a fetch. Even if it fails, we still read cached data.
+    try { await fetch("/api/news/refresh", { method: "POST" }); } catch (e) {}
+  }
+
+  async function loadNews() {
+    const onlyImportant = $("#only-important").prop("checked");
+
+    const json = await apiGet(`/api/latest_news?days=1&limit=300&important=${onlyImportant ? 1 : 0}&type=all`);
+    const news = json.news || [];
+    displayNewsTimeline(news, onlyImportant);
+  }
+
+  async function loadHotspots() {
+    const json = await apiGet(`/api/latest_news?days=1&limit=200&important=0&type=hotspot`);
+    const news = json.news || [];
+    displayHotspots(news);
+  }
+
+  function displayNewsTimeline(newsList, onlyImportant) {
+    if (!newsList || newsList.length === 0) {
+      $("#news-timeline").html('<div class="text-center py-5"><p>暂无新闻</p></div>');
+      return;
+    }
+
+    // Use the original timeline container structure.
+    const items = newsList.slice(0, 200).map(n => {
+      const time = fmtTime(n.time || n.datetime || "");
+      const title = escHtml(n.title || "");
+      const content = escHtml(n.content || "");
+      const badge = isImportant(n) ? '<span class="badge bg-danger ms-2">重要</span>' : "";
+      const head = title ? `<strong>${title}</strong>${badge}` : `<strong>快讯</strong>${badge}`;
+
+      return `
+        <div class="time-point">
+          <div class="time-label">${time}</div>
+          <div class="news-items">
+            <div class="news-item">
+              <div class="news-content">${head}<div class="mt-1">${content}</div></div>
+            </div>
+          </div>
+        </div>
+      `;
+    }).join("");
+
+    const hint = onlyImportant ? '<div class="px-3 pt-3 text-muted small">已启用“只看重要”过滤</div>' : "";
+    $("#news-timeline").html(`${hint}<div class="news-timeline-container">${items}</div>`);
+  }
+
+  function displayHotspots(newsList) {
+    if (!newsList || newsList.length === 0) {
+      $("#hotspot-list").html('<div class="text-center py-5"><p>暂无热点</p></div>');
+      return;
+    }
+
+    // Simplify: show ranked hotspot cards based on newest items.
+    const items = newsList.slice(0, 30).map((n, idx) => {
+      const rank = idx + 1;
+      const time = fmtTime(n.time || n.datetime || "");
+      const content = escHtml(n.title || n.content || "");
+      const cls = rank <= 3 ? "rank-top" : "";
+      return `
+        <div class="hotspot-item d-flex gap-2 align-items-start">
+          <div class="hotspot-rank ${cls}">${rank}</div>
+          <div class="flex-grow-1">
+            <div class="hotspot-title">${content}</div>
+            <div class="text-muted small mt-1">${time}</div>
+          </div>
+        </div>
+      `;
+    }).join("");
+
+    $("#hotspot-list").html(`<div class="p-3">${items}</div>`);
+  }
+
+  function updateRefreshCountdown() {
+    refreshCountdown--;
+    if (refreshCountdown <= 0) {
+      window.location.reload();
+      return;
+    }
+    const minutes = Math.floor(refreshCountdown / 60);
+    const seconds = refreshCountdown % 60;
+    $("#refresh-time").text(`刷新: ${minutes}:${seconds < 10 ? "0" + seconds : seconds}`);
+  }
+
+  function updateCurrentTime() {
+    const now = new Date();
+    const timeString = now.toLocaleTimeString("zh-CN", { hour12: false });
+    $("#current-time span").text(timeString);
+  }
+
+  function updateMarketStatus() {
+    const now = new Date();
+    const hours = now.getHours();
+    const minutes = now.getMinutes();
+    const weekday = now.getDay(); // 0 Sun..6 Sat
+    const isWeekend = weekday === 0 || weekday === 6;
+
+    // Very simple session check (Beijing time)
+    const chinaOpen = !isWeekend && (
+      (hours === 9 && minutes >= 30) ||
+      (hours > 9 && hours < 11) ||
+      (hours === 11 && minutes <= 30) ||
+      (hours >= 13 && hours < 15)
+    );
+    const hkOpen = !isWeekend && (
+      (hours === 9 && minutes >= 30) ||
+      (hours > 9 && hours < 12) ||
+      (hours === 12 && minutes <= 0) ||
+      (hours >= 13 && hours < 16)
+    );
+    const usOpen = !isWeekend && (
+      (hours === 21 && minutes >= 30) ||
+      hours > 21 ||
+      hours < 4
+    );
+
+    function setStatus(id, open, text) {
+      const el = $(`#${id}`);
+      const icon = el.find("i");
+      icon.removeClass("status-open status-closed");
+      icon.addClass(open ? "status-open" : "status-closed");
+      el.find(".status-text").text(text);
+    }
+
+    setStatus("china-market", chinaOpen, `A股: ${chinaOpen ? "交易中" : "未开市"}`);
+    setStatus("hk-market", hkOpen, `港股: ${hkOpen ? "交易中" : "未开市"}`);
+    setStatus("us-market", usOpen, `美股: ${usOpen ? "交易中" : "未开市"}`);
+  }
+
+  function displayTickerNews(newsList) {
+    if (!newsList || newsList.length === 0) {
+      $("#ticker-container .ticker-wrapper").html('<div class="ticker-item">暂无最新消息</div>');
+      return;
+    }
+
+    const items = newsList.slice(0, 12).map(n => {
+      const content = escHtml(n.content || n.title || "");
+      return `<div class="ticker-item">${content}</div>`;
+    }).join("");
+
+    $("#ticker-container .ticker-wrapper").html(items);
+  }
+
+  async function startTickerNews() {
+    try {
+      const json = await apiGet(`/api/latest_news?days=1&limit=12&important=0&type=all`);
+      displayTickerNews(json.news || []);
+    } catch (e) {
+      $("#ticker-container .ticker-wrapper").html('<div class="ticker-item">获取最新消息失败</div>');
+    }
+  }
+
+  $(document).ready(async function() {
+    updateCurrentTime();
+    updateMarketStatus();
+    updateRefreshCountdown();
+
+    // Try to fetch once before reading cache (best-effort).
+    await refreshNewsData();
+
+    await Promise.allSettled([loadNews(), loadHotspots(), startTickerNews()]);
+
+    // Bind UI
+    $("#btnRefreshNews").on("click", async function() {
+      await refreshNewsData();
+      await Promise.allSettled([loadNews(), loadHotspots(), startTickerNews()]);
+    });
+    $("#only-important").on("change", async function() {
+      await loadNews();
+    });
+
+    // Timers
+    setInterval(updateRefreshCountdown, 1000);
+    setInterval(updateCurrentTime, 1000);
+    setInterval(updateMarketStatus, 60000);
+  });
+</script>
+{% endblock %}

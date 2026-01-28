@@ -1,0 +1,22 @@
+# Minimal runtime dependencies for the Workbench API (P0/P1).
+#
+# Note: vn.py integration is optional. If you want to use LIVE_TRADING_PROVIDER=vnpy_rpc,
+# install the additional deps (vnpy + pyzmq) and run an external vn.py RPC service.
+
+fastapi>=0.116.0
+uvicorn>=0.35.0
+pydantic>=2.6.4
+
+# Python 3.9 compatibility: allow evaluating annotations using `|` unions.
+eval_type_backport>=0.2.0
+
+# Data providers
+akshare>=1.16.98
+tushare>=1.4.21
+
+# Numeric utils (used by indicator/score calculations)
+numpy>=1.24.0,<2.0.0
+
+# Dev/test helpers (used by the repo's test suite)
+pytest>=7.3.1
+httpx>=0.28.0
