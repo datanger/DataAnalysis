@@ -4,9 +4,6 @@
 [submodule "FinRL"]
 	path = FinRL
 	url = https://github.com/AI4Finance-Foundation/FinRL.git
-[submodule "StockAnal_Sys"]
-	path = StockAnal_Sys
-	url = https://github.com/LargeCupPanda/StockAnal_Sys.git
 [submodule "vnpy"]
 	path = vnpy
 	url = https://github.com/vnpy/vnpy.git

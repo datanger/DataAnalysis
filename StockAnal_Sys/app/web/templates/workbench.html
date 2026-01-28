@@ -1,0 +1,334 @@
+{% extends "layout.html" %}
+
+{% block title %}选股工作台 - 智能分析系统{% endblock %}
+
+{% block head %}
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/workbench.css') }}">
+  <!-- IBM Plex字体 - 工业实用主义风格 -->
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid wb py-3">
+  <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-2">
+    <div>
+      <h1 class="h5 mb-0">选股工作台</h1>
+      <div class="small text-muted">范围 → 候选 → 研究：融合选股相关功能，去除重复（UI 预览）</div>
+    </div>
+    <div class="d-flex gap-2 flex-wrap">
+      <button class="btn btn-sm btn-primary" id="wb-btn-scan" type="button">
+        <i class="fas fa-bolt me-1"></i>扫描
+      </button>
+      <button class="btn btn-sm btn-outline-secondary" id="wb-btn-clear" type="button">
+        <i class="fas fa-eraser me-1"></i>清空
+      </button>
+      <a class="btn btn-sm btn-outline-primary" href="/news" target="_blank" rel="noopener">
+        <i class="fas fa-newspaper me-1"></i>消息面
+      </a>
+      <button class="btn btn-sm btn-outline-secondary" id="wb-toggle-compact" type="button" title="切换紧凑模式">
+        <i class="fas fa-compress-alt me-1"></i>紧凑模式
+      </button>
+    </div>
+  </div>
+
+  <div class="wb-grid">
+    <!-- 左：范围/筛选 -->
+    <section class="wb-card" aria-label="filters">
+      <div class="wb-card-hd">
+        <h6>范围与条件</h6>
+        <span class="badge text-bg-primary" id="wb-filter-summary">默认</span>
+      </div>
+      <div class="wb-card-bd">
+        <div class="vstack gap-2">
+          <div class="input-group input-group-sm">
+            <span class="input-group-text">指数</span>
+            <select class="form-select" id="wb-index">
+              <option value="">全部</option>
+              <option value="000300">沪深300</option>
+              <option value="000905">中证500</option>
+              <option value="000852">中证1000</option>
+              <option value="000001">上证指数</option>
+            </select>
+          </div>
+
+          <div class="input-group input-group-sm">
+            <span class="input-group-text">行业</span>
+            <input class="form-control" id="wb-industry" placeholder="输入关键词（如：半导体/医药/银行）">
+          </div>
+
+          <div class="input-group input-group-sm">
+            <span class="input-group-text">板块</span>
+            <select class="form-select" id="wb-board">
+              <option value="">全部</option>
+              <option value="kc50">科创50</option>
+              <option value="kc100">科创100</option>
+              <option value="bj50">北证50</option>
+            </select>
+          </div>
+
+          <div class="input-group input-group-sm">
+            <span class="input-group-text">自选</span>
+            <input class="form-control" id="wb-custom" placeholder="600519, 000001 ...">
+          </div>
+
+          <div class="input-group input-group-sm">
+            <span class="input-group-text">最低分</span>
+            <input class="form-control" id="wb-min-score" type="number" min="0" max="100" value="60">
+          </div>
+
+          <div class="mt-2">
+            <div class="small text-muted mb-2">快捷条件（融合：技术/基本面/资金/情景的常用入口）</div>
+            <div class="d-flex flex-wrap gap-2" id="wb-quick-tags">
+              <button class="btn btn-sm btn-outline-secondary" type="button" data-tag="trend">趋势向上</button>
+              <button class="btn btn-sm btn-outline-secondary" type="button" data-tag="volume">放量</button>
+              <button class="btn btn-sm btn-outline-secondary" type="button" data-tag="flow">净流入</button>
+              <button class="btn btn-sm btn-outline-secondary" type="button" data-tag="value">估值合理</button>
+              <button class="btn btn-sm btn-outline-secondary" type="button" data-tag="event">事件驱动</button>
+            </div>
+          </div>
+
+          <div class="alert alert-light border small mb-0 mt-3" role="alert">
+            说明：这里将“选股雷达/基本面/资金流向/情景预测/行业分析”等入口合并为同一工作台。
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 中：候选列表 -->
+    <section class="wb-card" aria-label="candidates">
+      <div class="wb-card-hd">
+        <h6>候选列表</h6>
+        <div class="d-flex gap-2 align-items-center">
+          <span class="badge text-bg-secondary" id="wb-count">0</span>
+          <button class="btn btn-sm btn-outline-primary" id="wb-btn-export" type="button" title="导出（UI 预览）">
+            <i class="fas fa-download"></i>
+          </button>
+        </div>
+      </div>
+      <div class="wb-card-bd">
+        <div class="d-flex gap-2 mb-2">
+          <input class="form-control form-control-sm" id="wb-search" placeholder="搜索：代码/名称/标签">
+          <select class="form-select form-select-sm" id="wb-sort" style="max-width: 160px;">
+            <option value="score_desc">分数 ↓</option>
+            <option value="chg_desc">涨跌幅 ↓</option>
+            <option value="chg_asc">涨跌幅 ↑</option>
+            <option value="name_asc">名称 A→Z</option>
+          </select>
+        </div>
+
+        <div class="wb-list" id="wb-list"></div>
+
+        <div class="small text-muted mt-2" id="wb-list-hint">
+          点击左侧“扫描”生成候选，或直接从示例候选开始。
+        </div>
+      </div>
+    </section>
+
+    <!-- 右：研究工作区 -->
+    <section class="wb-card" aria-label="workspace">
+      <div class="wb-card-hd">
+        <h6>研究工作区</h6>
+        <span class="badge text-bg-info" id="wb-selected">未选择</span>
+      </div>
+
+      <div class="wb-card-bd">
+        <div class="wb-kv" id="wb-kv">
+          <div class="kv">
+            <div class="k">最新价</div>
+            <div class="v" id="wb-kv-price">--</div>
+          </div>
+          <div class="kv">
+            <div class="k">涨跌幅</div>
+            <div class="v" id="wb-kv-chg">--</div>
+          </div>
+          <div class="kv">
+            <div class="k">综合评分</div>
+            <div class="v" id="wb-kv-score">--</div>
+          </div>
+          <div class="kv">
+            <div class="k">关注度</div>
+            <div class="v" id="wb-kv-attn">--</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="wb-tabs">
+        <div class="wb-tabbar" role="tablist" aria-label="workbench-tabs">
+          <div class="wb-tab active" data-tab="overview" role="tab" aria-selected="true">总览</div>
+          <div class="wb-tab" data-tab="tech" role="tab">技术</div>
+          <div class="wb-tab" data-tab="fund" role="tab">基本面</div>
+          <div class="wb-tab" data-tab="flow" role="tab">资金</div>
+          <div class="wb-tab" data-tab="news" role="tab">新闻</div>
+          <div class="wb-tab" data-tab="industry" role="tab">行业</div>
+          <div class="wb-tab" data-tab="scenario" role="tab">情景</div>
+        </div>
+      </div>
+
+      <div class="wb-pane" id="wb-pane-overview" data-pane="overview">
+        <div class="row g-2">
+          <div class="col-12 col-xl-6">
+            <div class="wb-card">
+              <div class="wb-card-hd"><h6>一句话结论（融合）</h6></div>
+              <div class="wb-card-bd small">
+                <div id="wb-one-liner" class="fw-semibold">请选择股票查看结论。</div>
+                <div class="text-muted mt-2">后续将由“研究助理/智能分析”生成并可追溯依据。</div>
+              </div>
+            </div>
+          </div>
+          <div class="col-12 col-xl-6">
+            <div class="wb-card">
+              <div class="wb-card-hd"><h6>下一步动作</h6></div>
+              <div class="wb-card-bd small" id="wb-next-actions">
+                <span class="badge text-bg-secondary">等待选择</span>
+              </div>
+            </div>
+          </div>
+          <div class="col-12">
+            <div class="wb-card">
+              <div class="wb-card-hd"><h6>关键因子快照</h6></div>
+              <div class="wb-card-bd">
+                <div class="d-flex flex-wrap gap-2" id="wb-factors"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="wb-pane d-none" id="wb-pane-tech" data-pane="tech">
+        <div class="row g-2">
+          <div class="col-12">
+            <div class="wb-card">
+              <div class="wb-card-hd"><h6>K线图</h6></div>
+              <div class="wb-card-bd">
+                <div id="price-chart"></div>
+              </div>
+            </div>
+          </div>
+          <div class="col-12">
+            <div class="wb-card">
+              <div class="wb-card-hd"><h6>技术指标</h6></div>
+              <div class="wb-card-bd">
+                <div id="indicators-chart"></div>
+              </div>
+            </div>
+          </div>
+          <div class="col-12 col-xl-6">
+            <div class="wb-card">
+              <div class="wb-card-hd"><h6>趋势/均线</h6></div>
+              <div class="wb-card-bd small" id="wb-tech-trend">--</div>
+            </div>
+          </div>
+          <div class="col-12 col-xl-6">
+            <div class="wb-card">
+              <div class="wb-card-hd"><h6>动量/波动</h6></div>
+              <div class="wb-card-bd small" id="wb-tech-momo">--</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="wb-pane d-none" id="wb-pane-fund" data-pane="fund">
+        <div class="row g-2">
+          <div class="col-12 col-xl-6">
+            <div class="wb-card">
+              <div class="wb-card-hd"><h6>盈利能力</h6></div>
+              <div class="wb-card-bd small" id="wb-fund-profit">--</div>
+            </div>
+          </div>
+          <div class="col-12 col-xl-6">
+            <div class="wb-card">
+              <div class="wb-card-hd"><h6>估值/安全边际</h6></div>
+              <div class="wb-card-bd small" id="wb-fund-valuation">--</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="wb-pane d-none" id="wb-pane-flow" data-pane="flow">
+        <div class="row g-2">
+          <div class="col-12 col-xl-6">
+            <div class="wb-card">
+              <div class="wb-card-hd"><h6>近 5 日资金</h6></div>
+              <div class="wb-card-bd small" id="wb-flow-5d">--</div>
+            </div>
+          </div>
+          <div class="col-12 col-xl-6">
+            <div class="wb-card">
+              <div class="wb-card-hd"><h6>主力行为</h6></div>
+              <div class="wb-card-bd small" id="wb-flow-main">--</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="wb-pane d-none" id="wb-pane-news" data-pane="news">
+        <div class="row g-2">
+          <div class="col-12">
+            <div class="wb-card">
+              <div class="wb-card-hd d-flex justify-content-between align-items-center">
+                <h6>新闻与公告</h6>
+                <button class="btn btn-sm btn-outline-primary" id="wb-btn-refresh-news">
+                  <i class="fas fa-sync-alt"></i> 刷新
+                </button>
+              </div>
+              <div class="wb-card-bd">
+                <div id="wb-news-list">
+                  <div class="text-muted small">暂无新闻数据</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="wb-pane d-none" id="wb-pane-industry" data-pane="industry">
+        <div class="row g-2">
+          <div class="col-12 col-xl-6">
+            <div class="wb-card">
+              <div class="wb-card-hd"><h6>行业景气/对比</h6></div>
+              <div class="wb-card-bd small" id="wb-industry-heat">--</div>
+            </div>
+          </div>
+          <div class="col-12 col-xl-6">
+            <div class="wb-card">
+              <div class="wb-card-hd"><h6>同板块竞品</h6></div>
+              <div class="wb-card-bd small" id="wb-industry-peers">--</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="wb-pane d-none" id="wb-pane-scenario" data-pane="scenario">
+        <div class="row g-2">
+          <div class="col-12 col-xl-6">
+            <div class="wb-card">
+              <div class="wb-card-hd"><h6>多情景结果</h6></div>
+              <div class="wb-card-bd small" id="wb-scn-cases">--</div>
+            </div>
+          </div>
+          <div class="col-12 col-xl-6">
+            <div class="wb-card">
+              <div class="wb-card-hd"><h6>风险点</h6></div>
+              <div class="wb-card-bd small" id="wb-scn-risks">--</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="p-2 pt-0">
+        <div class="d-flex flex-wrap gap-2 justify-content-end">
+          <button class="btn btn-sm btn-outline-primary" id="wb-btn-generate-report">
+            <i class="fas fa-file-alt me-1"></i>生成报告
+          </button>
+          <a class="btn btn-sm btn-outline-secondary" href="/stock_detail/600519" title="旧版：个股详情（后续可移除）">
+            <i class="fas fa-layer-group me-1"></i>旧版个股页
+          </a>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/workbench.js') }}"></script>
+{% endblock %}
+

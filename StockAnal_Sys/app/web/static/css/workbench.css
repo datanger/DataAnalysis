@@ -1,0 +1,383 @@
+:root {
+  --wb-gap: 12px;
+  --wb-radius: var(--ui-radius);
+  --wb-hairline: var(--ui-border);
+  --wb-muted: var(--ui-text-muted);
+
+  /* 紧凑模式变量 - 提升信息密度 */
+  --wb-compact-gap: 8px;
+  --wb-compact-radius: 10px;
+  --wb-compact-padding: 10px;
+  --wb-compact-padding-sm: 8px;
+  --wb-compact-font-sm: 11px;
+  --wb-compact-font-xs: 10px;
+}
+
+html[data-theme="dark"] {
+  --wb-hairline: var(--ui-border);
+  --wb-muted: var(--ui-text-muted);
+}
+
+.wb {
+  --_pad: 14px;
+}
+
+.wb-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--wb-gap);
+}
+
+@media (min-width: 992px) {
+  .wb-grid {
+    grid-template-columns: 320px 420px 1fr;
+    align-items: start;
+  }
+}
+
+.wb-card {
+  border-radius: var(--wb-radius);
+  border: 1px solid var(--border-color);
+  background: var(--card-bg-color);
+  overflow: hidden;
+  box-shadow: var(--ui-shadow-1);
+}
+
+html[data-theme="dark"] .wb-card {
+  box-shadow: var(--ui-shadow-1);
+}
+
+.wb-card-hd {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.wb-card-hd h6 {
+  margin: 0;
+  font-size: 12px;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+  color: var(--wb-muted);
+}
+
+.wb-card-bd {
+  padding: 12px;
+}
+
+.wb-kv {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.wb-kv .kv {
+  border: 1px solid var(--wb-hairline);
+  border-radius: 12px;
+  padding: 9px 10px;
+  background: rgba(255, 255, 255, 0.55);
+}
+
+html[data-theme="dark"] .wb-kv .kv {
+  background: rgba(0, 0, 0, 0.22);
+}
+
+.wb-kv .k {
+  font-size: 12px;
+  color: var(--wb-muted);
+}
+
+.wb-kv .v {
+  margin-top: 6px;
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.wb-list {
+  display: grid;
+  gap: 8px;
+}
+
+.wb-item {
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.55);
+  cursor: pointer;
+}
+
+html[data-theme="dark"] .wb-item {
+  background: rgba(0, 0, 0, 0.22);
+}
+
+.wb-item:hover {
+  filter: brightness(1.02);
+  transform: translateY(-1px);
+  transition: transform 120ms ease, filter 120ms ease;
+}
+
+.wb-item.active {
+  outline: 2px solid rgba(13, 110, 253, 0.35);
+}
+
+.wb-item-top {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.wb-code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New",
+    monospace;
+  font-size: 12px;
+  color: var(--wb-muted);
+}
+
+.wb-name {
+  font-weight: 800;
+  font-size: 13px;
+}
+
+.wb-tags {
+  margin-top: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.wb-tag {
+  font-size: 11px;
+  padding: 4px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--wb-hairline);
+  background: rgba(255, 255, 255, 0.55);
+}
+
+html[data-theme="dark"] .wb-tag {
+  background: rgba(0, 0, 0, 0.22);
+}
+
+.wb-tag.good {
+  border-color: rgba(45, 206, 137, 0.35);
+}
+
+.wb-tag.bad {
+  border-color: rgba(245, 54, 92, 0.35);
+}
+
+.wb-tag.warn {
+  border-color: rgba(251, 99, 64, 0.35);
+}
+
+.wb-tabs {
+  padding: 10px 12px 0;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.wb-tabbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding-bottom: 10px;
+}
+
+.wb-tab {
+  border: 1px solid var(--border-color);
+  border-radius: 999px;
+  padding: 6px 10px;
+  background: rgba(255, 255, 255, 0.55);
+  cursor: pointer;
+  font-size: 12px;
+  user-select: none;
+}
+
+html[data-theme="dark"] .wb-tab {
+  background: rgba(0, 0, 0, 0.22);
+}
+
+.wb-tab.active {
+  border-color: rgba(13, 110, 253, 0.55);
+  box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.16);
+}
+
+.wb-pane {
+  padding: 12px;
+}
+
+.wb-pane h5 {
+  margin: 0 0 10px 0;
+  font-size: 14px;
+}
+
+.wb-muted {
+  color: var(--wb-muted);
+}
+
+.wb-pre {
+  background: rgba(0, 0, 0, 0.06);
+  border: 1px solid var(--wb-hairline);
+  border-radius: 12px;
+  padding: 10px;
+  max-height: 340px;
+  overflow: auto;
+  font-size: 12px;
+}
+
+html[data-theme="dark"] .wb-pre {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+/* ===== 紧凑模式 - 提升信息密度 ===== */
+.wb-compact {
+  /* 全局紧凑设置 */
+  --wb-gap: var(--wb-compact-gap);
+  --wb-radius: var(--wb-compact-radius);
+}
+
+.wb-compact .wb-grid {
+  gap: var(--wb-compact-gap);
+}
+
+.wb-compact .wb-card {
+  border-radius: var(--wb-compact-radius);
+}
+
+.wb-compact .wb-card-hd {
+  padding: var(--wb-compact-padding-sm) var(--wb-compact-padding);
+}
+
+.wb-compact .wb-card-hd h6 {
+  font-size: var(--wb-compact-font-sm);
+  letter-spacing: 0.2px;
+}
+
+.wb-compact .wb-card-bd {
+  padding: var(--wb-compact-padding);
+}
+
+.wb-compact .wb-kv {
+  gap: 6px;
+}
+
+.wb-compact .wb-kv .kv {
+  padding: 7px 8px;
+  border-radius: 10px;
+}
+
+.wb-compact .wb-kv .k {
+  font-size: var(--wb-compact-font-xs);
+}
+
+.wb-compact .wb-kv .v {
+  margin-top: 4px;
+  font-size: 14px;
+}
+
+.wb-compact .wb-list {
+  gap: 6px;
+}
+
+.wb-compact .wb-item {
+  padding: 8px;
+  border-radius: 10px;
+}
+
+.wb-compact .wb-code {
+  font-size: var(--wb-compact-font-xs);
+}
+
+.wb-compact .wb-name {
+  font-size: 12px;
+}
+
+.wb-compact .wb-tags {
+  margin-top: 6px;
+  gap: 4px;
+}
+
+.wb-compact .wb-tag {
+  font-size: 10px;
+  padding: 3px 6px;
+}
+
+.wb-compact .wb-tabs {
+  padding: var(--wb-compact-padding-sm) var(--wb-compact-padding) 0;
+}
+
+.wb-compact .wb-tabbar {
+  gap: 6px;
+  padding-bottom: var(--wb-compact-padding-sm);
+}
+
+.wb-compact .wb-tab {
+  padding: 5px 8px;
+  font-size: var(--wb-compact-font-xs);
+}
+
+.wb-compact .wb-pane {
+  padding: var(--wb-compact-padding);
+}
+
+.wb-compact .wb-pane h5 {
+  margin: 0 0 8px 0;
+  font-size: 13px;
+}
+
+.wb-compact .wb-pre {
+  padding: 8px;
+  font-size: var(--wb-compact-font-xs);
+  max-height: 300px;
+}
+
+/* 紧凑模式下的表单控件 */
+.wb-compact .form-control,
+.wb-compact .form-select,
+.wb-compact .input-group-text {
+  font-size: var(--wb-compact-font-sm);
+  padding: 6px 8px;
+}
+
+.wb-compact .form-control-sm,
+.wb-compact .form-select-sm {
+  font-size: var(--wb-compact-font-xs);
+  padding: 4px 6px;
+}
+
+.wb-compact .btn-sm {
+  font-size: var(--wb-compact-font-xs);
+  padding: 4px 8px;
+}
+
+/* 紧凑网格布局 - 在大屏幕上增加列数 */
+@media (min-width: 1400px) {
+  .wb-compact .wb-grid {
+    grid-template-columns: 280px 380px 1fr;
+  }
+}
+
+/* 工业实用主义字体 */
+.wb-compact {
+  font-family: 'IBM Plex Sans', ui-sans-serif, system-ui, -apple-system, sans-serif;
+}
+
+.wb-compact .wb-code,
+.wb-compact .form-control,
+.wb-compact .form-select {
+  font-family: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+/* 高对比度边框 */
+.wb-compact .wb-card {
+  border-color: var(--border-color);
+  border-width: 1.5px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+html[data-theme="dark"] .wb-compact .wb-card {
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+  border-color: var(--border-color);
+}

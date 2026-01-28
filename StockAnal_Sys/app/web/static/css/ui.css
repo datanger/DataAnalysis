@@ -1,0 +1,124 @@
+/* Global UI baseline (terminal-first, slightly softened).
+ * Loaded after layout.html inline styles so it can unify Bootstrap components
+ * without rewriting every template.
+ */
+
+:root {
+  --ui-card-pad: 12px;
+  --ui-card-pad-lg: 14px;
+  --ui-line: var(--ui-border);
+}
+
+body {
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", "Segoe UI Variable",
+    "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei UI", "Microsoft YaHei", sans-serif;
+  font-variant-numeric: tabular-nums;
+  text-rendering: optimizeLegibility;
+}
+
+/* Surface + card */
+.card {
+  border-radius: var(--ui-radius);
+  border: 1px solid var(--ui-border);
+  background: var(--ui-surface);
+  box-shadow: var(--ui-shadow-1);
+  margin-bottom: 14px;
+}
+
+.card:hover {
+  box-shadow: var(--ui-shadow-2);
+}
+
+.card-header {
+  padding: 10px var(--ui-card-pad);
+  background: linear-gradient(180deg, var(--ui-surface), var(--ui-surface-2));
+  border-bottom: 1px solid var(--ui-line);
+}
+
+.card-body {
+  padding: var(--ui-card-pad-lg);
+}
+
+.card-title,
+.card-header h1,
+.card-header h2,
+.card-header h3,
+.card-header h4,
+.card-header h5,
+.card-header h6 {
+  letter-spacing: 0.2px;
+}
+
+/* Tables (reduce "bootstrap-default" look) */
+.table {
+  --bs-table-bg: transparent;
+  --bs-table-color: var(--ui-text);
+  --bs-table-border-color: var(--ui-line);
+  --bs-table-striped-bg: rgba(17, 24, 39, 0.03);
+  --bs-table-hover-bg: rgba(13, 110, 253, 0.06);
+  font-variant-numeric: tabular-nums;
+}
+
+html[data-theme="dark"] .table {
+  --bs-table-striped-bg: rgba(255, 255, 255, 0.03);
+  --bs-table-hover-bg: rgba(91, 157, 255, 0.10);
+}
+
+.table thead th {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--ui-text-muted);
+  border-bottom-color: var(--ui-border-strong);
+}
+
+.table-hover > tbody > tr:hover > * {
+  color: var(--ui-text);
+}
+
+/* Forms (terminal-like inputs with soft focus ring) */
+.form-control,
+.form-select,
+.input-group-text {
+  background-color: var(--ui-surface-2);
+  color: var(--ui-text);
+  border-color: var(--ui-line);
+}
+
+.form-control::placeholder {
+  color: var(--ui-text-muted);
+  opacity: 0.8;
+}
+
+.form-control:focus,
+.form-select:focus {
+  background-color: var(--ui-surface);
+  border-color: rgba(13, 110, 253, 0.55);
+  box-shadow: 0 0 0 3px var(--ui-focus);
+  color: var(--ui-text);
+}
+
+/* Ensure dark mode doesn't get stuck on older overrides that use !important. */
+html[data-theme="dark"] .form-control,
+html[data-theme="dark"] .form-select,
+html[data-theme="dark"] .input-group-text {
+  background-color: var(--ui-surface-2) !important;
+  border-color: var(--ui-line) !important;
+  color: var(--ui-text) !important;
+}
+
+/* Links: slightly calmer than default Bootstrap */
+a {
+  color: var(--link-color);
+}
+
+a:hover {
+  color: var(--link-hover-color);
+}
+
+/* Small utility: terminal-style number alignment in common "metrics" blocks */
+.metric-value,
+.score-pill,
+.badge,
+.wb-code {
+  font-variant-numeric: tabular-nums;
+}

@@ -1,0 +1,173 @@
+{% extends "layout.html" %}
+
+{% block title %}研究中心 - 智能分析系统{% endblock %}
+
+{% block head %}
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/research.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid rc py-3">
+  <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-2">
+    <div>
+      <h1 class="h5 mb-0">研究中心</h1>
+      <div class="small text-muted">合并：研究助理 + 智能问答（同一对话、同一工作区、同一引用源）</div>
+    </div>
+    <div class="d-flex gap-2 flex-wrap">
+      <div class="btn-group btn-group-sm" role="group" aria-label="mode">
+        <button type="button" class="btn btn-outline-primary active" id="rc-mode-qa">问答</button>
+        <button type="button" class="btn btn-outline-primary" id="rc-mode-research">研究</button>
+      </div>
+      <button class="btn btn-sm btn-primary" type="button" id="rc-btn-report">
+        <i class="fas fa-file-alt me-1"></i>生成研究报告
+      </button>
+      <button class="btn btn-sm btn-outline-secondary" type="button" id="rc-btn-clear">
+        <i class="fas fa-eraser me-1"></i>清空
+      </button>
+      <a class="btn btn-sm btn-outline-primary" href="/news" target="_blank" rel="noopener">
+        <i class="fas fa-newspaper me-1"></i>消息面
+      </a>
+    </div>
+  </div>
+
+  <div class="rc-grid">
+    <!-- 左：统一对话（问答/研究共用） -->
+    <section class="rc-card" aria-label="chat">
+      <div class="rc-card-hd">
+        <div class="d-flex align-items-center gap-2">
+          <h6 class="mb-0">对话</h6>
+          <span class="badge text-bg-info" id="rc-mode-badge">问答</span>
+        </div>
+        <div class="d-flex gap-2 align-items-center">
+          <span class="badge text-bg-secondary" id="rc-msg-count">0</span>
+        </div>
+      </div>
+
+      <div class="rc-card-bd rc-chat" id="rc-chat" aria-label="chat-scroll">
+        <div class="rc-msg rc-msg-assistant">
+          <div class="rc-bubble">
+            <div class="fw-semibold">UI 预览</div>
+            <div class="small text-muted mt-1">
+              这里是“研究助理 + 智能问答”的统一入口：同一对话流，右侧输出研究产物与引用。
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="rc-card-ft">
+        <div class="input-group input-group-sm mb-2">
+          <span class="input-group-text">研究对象</span>
+          <input class="form-control" id="rc-target" placeholder="可选：股票代码/主题（如 600519 或 半导体景气）">
+          <button class="btn btn-outline-secondary" id="rc-btn-use-target" type="button">应用</button>
+        </div>
+        <div class="input-group">
+          <textarea class="form-control" id="rc-input" rows="2" placeholder="输入问题或研究指令（Enter 发送，Shift+Enter 换行）"></textarea>
+          <button class="btn btn-primary" type="button" id="rc-send">
+            <i class="fas fa-paper-plane"></i>
+          </button>
+        </div>
+        <div class="d-flex flex-wrap gap-2 mt-2">
+          <button class="btn btn-sm btn-outline-secondary rc-prompt" type="button" data-prompt="用一句话总结今天市场最重要的信息。">市场一句话</button>
+          <button class="btn btn-sm btn-outline-secondary rc-prompt" type="button" data-prompt="给出该标的的观察清单：趋势、估值、资金、消息。">观察清单</button>
+          <button class="btn btn-sm btn-outline-secondary rc-prompt" type="button" data-prompt="列出 3 个最关键的风险点，并给出验证路径。">风险验证</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 右：统一工作区（报告/引用/任务/设置） -->
+    <section class="rc-card" aria-label="workspace">
+      <div class="rc-card-hd">
+        <div class="d-flex align-items-center gap-2">
+          <h6 class="mb-0">工作区</h6>
+          <span class="badge text-bg-primary" id="rc-active-target">未绑定对象</span>
+        </div>
+        <div class="d-flex gap-2">
+          <a class="btn btn-sm btn-outline-primary" href="/workbench" title="回到选股工作台">
+            <i class="fas fa-search me-1"></i>选股工作台
+          </a>
+        </div>
+      </div>
+
+      <div class="rc-tabs" role="tablist" aria-label="research-tabs">
+        <button class="rc-tab active" data-tab="report" type="button">报告</button>
+        <button class="rc-tab" data-tab="sources" type="button">引用</button>
+        <button class="rc-tab" data-tab="tasks" type="button">任务</button>
+        <button class="rc-tab" data-tab="settings" type="button">设置</button>
+      </div>
+
+      <div class="rc-card-bd">
+        <div class="rc-pane" data-pane="report">
+          <div class="rc-empty" id="rc-report-empty">
+            <div class="fw-semibold">暂无报告</div>
+            <div class="small text-muted mt-1">点击“生成研究报告”或在对话里下达研究指令。</div>
+          </div>
+          <div class="rc-report d-none" id="rc-report">
+            <div class="rc-section">
+              <div class="rc-section-hd">结论</div>
+              <div class="rc-section-bd" id="rc-report-conclusion">--</div>
+            </div>
+            <div class="rc-section">
+              <div class="rc-section-hd">依据（融合）</div>
+              <div class="rc-section-bd" id="rc-report-evidence">--</div>
+            </div>
+            <div class="rc-section">
+              <div class="rc-section-hd">风险与验证</div>
+              <div class="rc-section-bd" id="rc-report-risks">--</div>
+            </div>
+            <div class="rc-section">
+              <div class="rc-section-hd">交易/观察计划</div>
+              <div class="rc-section-bd" id="rc-report-plan">--</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="rc-pane d-none" data-pane="sources">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <div class="fw-semibold">消息面（引用源）</div>
+            <button class="btn btn-sm btn-outline-secondary" id="rc-refresh-sources" type="button">
+              <i class="fas fa-sync-alt me-1"></i>刷新
+            </button>
+          </div>
+          <div class="rc-sources" id="rc-sources"></div>
+          <div class="small text-muted mt-2">说明：引用源将为问答/研究提供可追溯依据（UI 预览）。</div>
+        </div>
+
+        <div class="rc-pane d-none" data-pane="tasks">
+          <div class="rc-empty">
+            <div class="fw-semibold">暂无任务</div>
+            <div class="small text-muted mt-1">后续将接入后台任务（扫描、报告生成、数据刷新等）。</div>
+          </div>
+        </div>
+
+        <div class="rc-pane d-none" data-pane="settings">
+          <div class="rc-kv">
+            <div class="kv">
+              <div class="k">输出风格</div>
+              <div class="v">
+                <select class="form-select form-select-sm" id="rc-style">
+                  <option value="brief">精简</option>
+                  <option value="balanced" selected>平衡</option>
+                  <option value="deep">深入</option>
+                </select>
+              </div>
+            </div>
+            <div class="kv">
+              <div class="k">引用优先级</div>
+              <div class="v">
+                <select class="form-select form-select-sm" id="rc-cite">
+                  <option value="news" selected>消息面</option>
+                  <option value="both">消息 + 数据</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <div class="small text-muted mt-2">说明：这里会统一“研究助理/问答”的行为参数，避免两套入口重复配置。</div>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/research.js') }}"></script>
+{% endblock %}
+

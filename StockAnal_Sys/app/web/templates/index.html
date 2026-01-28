@@ -1,0 +1,411 @@
+{% extends "layout.html" %}
+
+{% block title %}首页 - 智能分析系统{% endblock %}
+
+{% block head %}
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/home.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="home container-fluid py-3">
+  <section class="home-hero mb-3">
+    <div class="home-hero-inner">
+      <div class="d-flex flex-wrap align-items-end justify-content-between gap-3">
+        <div>
+          <h1 class="h4 mb-1 home-title">今日总览</h1>
+          <div class="home-subtitle">市场（D）/ 快捷动作（E）/ 组合风险（A）/ 待办（B）/ 数据与任务（C）</div>
+        </div>
+        <div class="text-end">
+          <div class="small text-muted">UI 预览模式</div>
+          <div class="small text-muted">确认内容后再实现功能</div>
+        </div>
+      </div>
+
+      <div class="status-row">
+        <div class="status-pills" aria-label="data-health">
+          <span class="status-pill">
+            <span class="status-dot ok" id="hp-akshare-dot"></span>
+            <span>AKShare</span>
+            <span class="text-muted" id="hp-akshare-text">可用</span>
+          </span>
+          <span class="status-pill">
+            <span class="status-dot" id="hp-tushare-dot"></span>
+            <span>TuShare</span>
+            <span class="text-muted" id="hp-tushare-text">未配置</span>
+          </span>
+          <span class="status-pill">
+            <i class="fas fa-clock"></i>
+            <span class="text-muted">最近更新</span>
+            <span id="hp-last-update">--</span>
+          </span>
+          <span class="status-pill">
+            <i class="fas fa-tasks"></i>
+            <span class="text-muted">任务</span>
+            <span id="hp-task-count">--</span>
+          </span>
+        </div>
+
+        <div class="d-flex gap-2 flex-wrap">
+          <a class="btn btn-primary btn-sm" href="/workbench"><i class="fas fa-search me-1"></i>选股工作台</a>
+          <a class="btn btn-outline-primary btn-sm" href="/portfolio"><i class="fas fa-briefcase me-1"></i>组合</a>
+          <a class="btn btn-outline-primary btn-sm" href="/news" target="_blank" rel="noopener">
+            <i class="fas fa-newspaper me-1"></i>消息面
+          </a>
+          <button class="btn btn-outline-secondary btn-sm" type="button" id="hp-btn-update"><i class="fas fa-database me-1"></i>数据更新</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="home-grid">
+    <section class="home-surface home-market">
+        <div class="home-card-header">
+          <h2 class="home-card-title">市场概览</h2>
+          <div class="d-flex gap-2 flex-wrap align-items-center">
+            <span class="tag ok" id="hp-trading-day">交易日</span>
+            <span class="tag" id="hp-market-note">波动：中等</span>
+          </div>
+        </div>
+        <div class="home-card-body">
+          <div class="market-meta" aria-label="market-meta">
+            <div class="micro-block">
+              <div class="micro-label">
+                <span>热点主题</span>
+                <span class="text-muted small">TOP</span>
+              </div>
+              <div class="chip-row" id="hp-themes" aria-label="themes"></div>
+            </div>
+            <div class="micro-block">
+              <div class="micro-label">
+                <span>领涨行业</span>
+                <span class="text-muted small">TOP3</span>
+              </div>
+              <div class="micro-list" id="hp-sectors-up" aria-label="sectors-up"></div>
+            </div>
+            <div class="micro-block">
+              <div class="micro-label">
+                <span>领跌行业</span>
+                <span class="text-muted small">TOP3</span>
+              </div>
+              <div class="micro-list" id="hp-sectors-down" aria-label="sectors-down"></div>
+            </div>
+          </div>
+
+          <div class="index-grid" id="hp-index-grid" aria-label="major-indexes"></div>
+
+          <div class="breadth mt-3" aria-label="breadth">
+            <div class="breadth-legend">
+              <div class="d-flex justify-content-between">
+                <span>涨跌分布</span>
+                <span class="index-code" id="hp-breadth-counts">--</span>
+              </div>
+              <div class="mt-1 small text-muted">判断“普涨/普跌/结构性”的第一眼</div>
+            </div>
+            <div class="breadth-bar" role="img" aria-label="up-down-flat">
+              <div class="breadth-seg up" id="hp-breadth-up" style="width: 0%"></div>
+              <div class="breadth-seg flat" id="hp-breadth-flat" style="width: 0%"></div>
+              <div class="breadth-seg down" id="hp-breadth-down" style="width: 0%"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    <section class="home-surface home-actions-card">
+        <div class="home-card-header">
+          <h2 class="home-card-title">快捷动作</h2>
+          <span class="tag" title="仅 UI 预览">Preview</span>
+        </div>
+        <div class="home-card-body">
+          <div class="home-actions">
+            <a class="action-btn" href="/dashboard">
+              <div>
+                <div class="fw-bold">智能分析</div>
+                <div class="action-meta">输入代码，快速查看关键结论</div>
+              </div>
+              <i class="fas fa-chart-line"></i>
+            </a>
+            <a class="action-btn" href="/portfolio">
+              <div>
+                <div class="fw-bold">组合管家</div>
+                <div class="action-meta">绩效、风险暴露与调仓建议</div>
+              </div>
+              <i class="fas fa-briefcase"></i>
+            </a>
+            <a class="action-btn" href="/risk_monitor">
+              <div>
+                <div class="fw-bold">风险监控</div>
+                <div class="action-meta">集中度/回撤/异常波动预警</div>
+              </div>
+              <i class="fas fa-exclamation-triangle"></i>
+            </a>
+            <button class="action-btn" type="button" id="hp-btn-create-portfolio">
+              <div>
+                <div class="fw-bold">创建组合</div>
+                <div class="action-meta">后续支持订单草稿与复盘闭环</div>
+              </div>
+              <i class="fas fa-plus"></i>
+            </button>
+          </div>
+        </div>
+      </section>
+
+    <section class="home-surface home-risk">
+        <div class="home-card-header">
+          <h2 class="home-card-title">组合风险（最可执行）</h2>
+          <a class="btn btn-outline-primary btn-sm" href="/portfolio"><i class="fas fa-arrow-right me-1"></i>进入组合</a>
+        </div>
+        <div class="home-card-body">
+          <div class="metric-row">
+            <div class="metric">
+              <div class="metric-label">总资产</div>
+              <div class="metric-value" id="hp-pf-equity">--</div>
+              <div class="metric-hint text-muted">含现金与持仓（示例）</div>
+            </div>
+            <div class="metric">
+              <div class="metric-label">回撤</div>
+              <div class="metric-value" id="hp-pf-dd">--</div>
+              <div class="metric-hint text-muted">用于判断是否需要降仓位</div>
+            </div>
+            <div class="metric">
+              <div class="metric-label">预警数</div>
+              <div class="metric-value" id="hp-pf-alerts">--</div>
+              <div class="metric-hint text-muted">后续会跳转到预警列表</div>
+            </div>
+            <div class="metric">
+              <div class="metric-label">最大仓位</div>
+              <div class="metric-value" id="hp-pf-maxpos">--</div>
+              <div class="metric-hint text-muted">单票占比（示例）</div>
+            </div>
+          </div>
+          <div class="mt-3 small text-muted">
+            这里未来会展示最大单票仓位、集中度、行业暴露，并给出“下一步动作”的建议。
+          </div>
+        </div>
+      </section>
+
+    <section class="home-surface home-todo">
+        <div class="home-card-header">
+          <h2 class="home-card-title">待办（下一步动作）</h2>
+          <span class="tag warn" id="hp-todo-count">--</span>
+        </div>
+        <div class="home-card-body">
+          <div class="todo-list" id="hp-todo-list"></div>
+        </div>
+      </section>
+
+    <section class="home-surface home-health">
+        <div class="home-card-header">
+          <h2 class="home-card-title">数据与任务（健康度）</h2>
+          <div class="d-flex gap-2 flex-wrap">
+            <span class="tag" id="hp-data-hint">字段缺失/延迟未来会在这里提示影响范围</span>
+          </div>
+        </div>
+        <div class="home-card-body">
+          <div class="metric-row">
+            <div class="metric">
+              <div class="metric-label">数据源</div>
+              <div class="metric-value" id="hp-provider-summary">--</div>
+              <div class="metric-hint">可插拔：AKShare/TuShare</div>
+            </div>
+            <div class="metric">
+              <div class="metric-label">最近更新</div>
+              <div class="metric-value" id="hp-data-updated">--</div>
+              <div class="metric-hint">数据新鲜度直接影响结论可信度</div>
+            </div>
+            <div class="metric">
+              <div class="metric-label">任务队列</div>
+              <div class="metric-value" id="hp-task-summary">--</div>
+              <div class="metric-hint">失败需可操作的错误信息</div>
+            </div>
+            <div class="metric">
+              <div class="metric-label">数据质量</div>
+              <div class="metric-value" id="hp-quality">--</div>
+              <div class="metric-hint">缺失字段会标注“影响哪些功能”</div>
+            </div>
+          </div>
+        </div>
+    </section>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  // Homepage is UI-only for now: render a believable "first screen" with mock data.
+  // After UI review, this is where we'll wire real endpoints + empty/error states.
+  (function () {
+    const mock = {
+      providers: [
+        { name: "AKShare", ok: true, text: "可用" },
+        { name: "TuShare", ok: false, text: "未配置 Token" },
+      ],
+      lastUpdate: "2026-01-24 15:10",
+      tasks: { running: 2, failed: 1 },
+      market: {
+        tradingDay: true,
+        note: "结构性偏强",
+        themes: ["AI 应用", "算力", "国企改革", "机器人", "半导体", "低空经济"],
+        sectorUp: [
+          { name: "通信设备", chgPct: 2.6 },
+          { name: "软件服务", chgPct: 2.1 },
+          { name: "军工", chgPct: 1.7 },
+        ],
+        sectorDown: [
+          { name: "白酒", chgPct: -1.2 },
+          { name: "医药商业", chgPct: -0.9 },
+          { name: "煤炭", chgPct: -0.7 },
+        ],
+        indexes: [
+          { name: "上证指数", code: "000001", value: 3052.41, chgPct: 0.83 },
+          { name: "深证成指", code: "399001", value: 9721.63, chgPct: 1.12 },
+          { name: "创业板指", code: "399006", value: 1920.07, chgPct: -0.34 },
+          { name: "科创50", code: "000688", value: 832.19, chgPct: 0.58 },
+          { name: "沪深300", code: "000300", value: 3478.90, chgPct: 0.64 },
+          { name: "中证500", code: "000905", value: 5231.11, chgPct: 0.91 },
+        ],
+        breadth: { up: 3120, down: 1890, flat: 120 },
+      },
+      portfolio: {
+        equity: 512340,
+        ddPct: -5.8,
+        alerts: 3,
+        maxPosPct: 24.0,
+      },
+      todo: [
+        { tag: "待复盘", tone: "warn", title: "计划复盘：600519", desc: "检查止损条件是否仍成立，补充依据与风险点" },
+        { tag: "待确认", tone: "bad", title: "订单草稿：BUY 002475", desc: "等待风控校验通过后确认（UI 预览）" },
+        { tag: "失败重试", tone: "warn", title: "数据任务失败：资金流", desc: "点击后续会显示错误码与建议" },
+      ],
+    };
+
+    function fmtNum(n) {
+      try { return new Intl.NumberFormat("zh-CN").format(n); } catch (e) { return String(n); }
+    }
+
+    function fmtPct(p) {
+      const sign = p > 0 ? "+" : "";
+      return `${sign}${p.toFixed(2)}%`;
+    }
+
+    function setText(id, text) {
+      const el = document.getElementById(id);
+      if (el) el.textContent = text;
+    }
+
+    // Top pills
+    setText("hp-last-update", mock.lastUpdate);
+    setText("hp-task-count", `${mock.tasks.running} 运行 / ${mock.tasks.failed} 失败`);
+
+    const ak = mock.providers.find((p) => p.name === "AKShare");
+    const ts = mock.providers.find((p) => p.name === "TuShare");
+    if (ak) {
+      document.getElementById("hp-akshare-dot")?.classList.toggle("ok", !!ak.ok);
+      document.getElementById("hp-akshare-dot")?.classList.toggle("bad", !ak.ok);
+      setText("hp-akshare-text", ak.text);
+    }
+    if (ts) {
+      document.getElementById("hp-tushare-dot")?.classList.toggle("ok", !!ts.ok);
+      document.getElementById("hp-tushare-dot")?.classList.toggle("bad", !ts.ok);
+      setText("hp-tushare-text", ts.text);
+    }
+
+    // Market header tags
+    setText("hp-market-note", `波动：${mock.market.note}`);
+    setText("hp-trading-day", mock.market.tradingDay ? "交易日" : "非交易日");
+    document.getElementById("hp-trading-day")?.classList.toggle("ok", !!mock.market.tradingDay);
+
+    // Themes / sectors (dense context without leaving the page)
+    const themesEl = document.getElementById("hp-themes");
+    if (themesEl) {
+      themesEl.innerHTML = (mock.market.themes || []).map((t) => {
+        return `<span class="chip"><i class="fas fa-hashtag"></i><span>${t}</span></span>`;
+      }).join("");
+    }
+
+    function renderMicroList(id, items, tone) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.innerHTML = (items || []).slice(0, 3).map((it) => {
+        const cls = tone === "up" ? "up" : "down";
+        const sign = it.chgPct > 0 ? "+" : "";
+        return `
+          <div class="micro-item">
+            <span>${it.name}</span>
+            <span class="${cls}">${sign}${it.chgPct.toFixed(1)}%</span>
+          </div>
+        `;
+      }).join("");
+    }
+
+    renderMicroList("hp-sectors-up", mock.market.sectorUp, "up");
+    renderMicroList("hp-sectors-down", mock.market.sectorDown, "down");
+
+    // Index tiles
+    const grid = document.getElementById("hp-index-grid");
+    if (grid) {
+      grid.innerHTML = mock.market.indexes.map((it) => {
+        const dir = it.chgPct >= 0 ? "up" : "down";
+        const icon = it.chgPct >= 0 ? "fa-arrow-up" : "fa-arrow-down";
+        return `
+          <div class="index-tile">
+            <div class="index-name">
+              <span>${it.name}</span>
+              <span class="index-code">${it.code}</span>
+            </div>
+            <div class="index-value">${fmtNum(it.value)}</div>
+            <div class="index-change ${dir}"><i class="fas ${icon}"></i><span>${fmtPct(it.chgPct)}</span></div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    // Breadth
+    const b = mock.market.breadth;
+    const total = Math.max(1, (b.up || 0) + (b.down || 0) + (b.flat || 0));
+    const upPct = (b.up / total) * 100;
+    const downPct = (b.down / total) * 100;
+    const flatPct = 100 - upPct - downPct;
+    document.getElementById("hp-breadth-up")?.setAttribute("style", `width: ${upPct.toFixed(2)}%`);
+    document.getElementById("hp-breadth-down")?.setAttribute("style", `width: ${downPct.toFixed(2)}%`);
+    document.getElementById("hp-breadth-flat")?.setAttribute("style", `width: ${flatPct.toFixed(2)}%`);
+    setText("hp-breadth-counts", `涨 ${b.up} / 平 ${b.flat} / 跌 ${b.down}`);
+
+    // Portfolio
+    setText("hp-pf-equity", `¥ ${fmtNum(mock.portfolio.equity)}`);
+    setText("hp-pf-dd", `${mock.portfolio.ddPct.toFixed(1)}%`);
+    setText("hp-pf-alerts", String(mock.portfolio.alerts));
+    setText("hp-pf-maxpos", `${mock.portfolio.maxPosPct.toFixed(1)}%`);
+
+    // Todo
+    setText("hp-todo-count", `${mock.todo.length} 条`);
+    const todoList = document.getElementById("hp-todo-list");
+    if (todoList) {
+      todoList.innerHTML = mock.todo.map((t) => {
+        const tone = t.tone || "";
+        return `
+          <div class="todo-item">
+            <div>
+              <div class="todo-title">${t.title}</div>
+              <div class="todo-desc">${t.desc}</div>
+            </div>
+            <span class="tag ${tone}">${t.tag}</span>
+          </div>
+        `;
+      }).join("");
+    }
+
+    // Data & tasks summary
+    setText("hp-provider-summary", `${ak?.ok ? "AKShare OK" : "AKShare 异常"} / ${ts?.ok ? "TuShare OK" : "TuShare 未就绪"}`);
+    setText("hp-data-updated", mock.lastUpdate);
+    setText("hp-task-summary", `${mock.tasks.running} 运行，${mock.tasks.failed} 失败`);
+    setText("hp-quality", "轻微缺失");
+
+    // Preview interactions
+    const btnUpdate = document.getElementById("hp-btn-update");
+    if (btnUpdate) btnUpdate.addEventListener("click", () => showInfo("这是 UI 预览：后续会在这里选择“增量/全量更新”，并进入任务进度。"));
+
+    const btnCreatePortfolio = document.getElementById("hp-btn-create-portfolio");
+    if (btnCreatePortfolio) btnCreatePortfolio.addEventListener("click", () => showInfo("这是 UI 预览：后续会打开“创建组合”弹窗/页面。"));
+  })();
+</script>
+{% endblock %}

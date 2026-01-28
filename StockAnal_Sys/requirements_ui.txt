@@ -1,0 +1,9 @@
+# Minimal dependencies to boot StockAnal_Sys UI in preview mode (templates + static assets).
+#
+# Use this when you only need the UI shell to call Workbench API endpoints.
+# For the full StockAnal_Sys analytics stack, use StockAnal_Sys/requirements.txt instead.
+
+flask>=3.1.0
+flask-cors>=6.0.0
+python-dotenv>=1.0.0
+requests>=2.31.0
