@@ -1,0 +1,15 @@
+# Optional dependencies for Workbench live trading provider: vnpy_rpc
+#
+# - Requires: ZeroMQ bindings (pyzmq). vn.py itself is vendored under ./vnpy,
+#   so it is already importable when running from repo root with PYTHONPATH set.
+#
+# Install:
+#   pip install -r workbench/requirements.txt -r workbench/requirements_vnpy_rpc.txt
+#
+# Then start an RPC server (see scripts/vnpy_rpc_demo_server.py) and set:
+#   LIVE_TRADING_PROVIDER=vnpy_rpc
+#   VNPY_RPC_REQ=tcp://127.0.0.1:2014
+#   VNPY_RPC_SUB=tcp://127.0.0.1:2015
+
+pyzmq>=25.0.0
+

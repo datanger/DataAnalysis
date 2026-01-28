@@ -1,12 +1,12 @@
 [submodule "DeepResearch"]
 	path = DeepResearch
-	url = https://github.com/datanger/DeepResearch.git
-[submodule "OpenHands"]
-	path = OpenHands
-	url = https://github.com/datanger/OpenHands.git
+	url = https://github.com/Alibaba-NLP/DeepResearch.git
+[submodule "FinRL"]
+	path = FinRL
+	url = https://github.com/AI4Finance-Foundation/FinRL.git
 [submodule "StockAnal_Sys"]
 	path = StockAnal_Sys
-	url = https://github.com/datanger/StockAnal_Sys.git
-[submodule "pandas-ai"]
-	path = pandas-ai
-	url = https://github.com/datanger/pandas-ai.git
+	url = https://github.com/LargeCupPanda/StockAnal_Sys.git
+[submodule "vnpy"]
+	path = vnpy
+	url = https://github.com/vnpy/vnpy.git

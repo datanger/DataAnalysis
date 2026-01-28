@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Workbench</title>
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="brand">Workbench</div>
+      <div class="muted">Local-first investing workbench (A-share)</div>
+    </header>
+
+    <main class="container">
+      <section class="card">
+        <h2>Health</h2>
+        <pre id="health" class="pre"></pre>
+        <button id="btnHealth">Refresh</button>
+      </section>
+
+      <section class="card">
+        <h2>Data Tasks</h2>
+        <div class="row">
+          <button id="btnIngestInstruments">Ingest Instruments</button>
+        </div>
+        <div class="row">
+          <input id="barsSymbol" placeholder="symbol (e.g. 600519)" value="600519" />
+          <select id="barsExchange">
+            <option value="SSE">SSE</option>
+            <option value="SZSE">SZSE</option>
+          </select>
+          <input id="barsStart" placeholder="start_date YYYYMMDD" value="20200101" />
+          <button id="btnIngestBars">Ingest Bars</button>
+          <button id="btnIngestFundamentals">Ingest Fundamentals</button>
+          <button id="btnIngestCapitalFlow">Ingest Capital Flow</button>
+        </div>
+        <pre id="tasks" class="pre"></pre>
+      </section>
+
+      <section class="card">
+        <h2>Stock Workspace</h2>
+        <div class="row">
+          <input id="wsSymbol" placeholder="symbol" value="600519" />
+          <select id="wsExchange">
+            <option value="SSE">SSE</option>
+            <option value="SZSE">SZSE</option>
+          </select>
+          <button id="btnWorkspace">Load</button>
+        </div>
+        <pre id="workspace" class="pre"></pre>
+      </section>
+
+      <section class="card">
+        <h2>Score / Plan / Notes</h2>
+        <div class="row">
+          <input id="spnSymbol" placeholder="symbol" value="600519" />
+          <select id="spnExchange">
+            <option value="SSE">SSE</option>
+            <option value="SZSE">SZSE</option>
+          </select>
+          <button id="btnScore">Score</button>
+          <button id="btnPlan">Generate Plan</button>
+        </div>
+        <div class="row">
+          <textarea id="noteContent" rows="4" placeholder="note markdown"># Note\n\n- Example</textarea>
+          <button id="btnNote">Save Note</button>
+        </div>
+        <pre id="spnOut" class="pre"></pre>
+      </section>
+
+      <section class="card">
+        <h2>Portfolio / Draft / Risk / Sim</h2>
+        <div class="row">
+          <input id="pfName" placeholder="portfolio name" value="demo" />
+          <input id="pfCash" placeholder="initial cash" value="500000" />
+          <button id="btnCreatePortfolio">Create</button>
+          <button id="btnListPortfolios">List</button>
+        </div>
+        <pre id="portfolios" class="pre"></pre>
+
+        <div class="row">
+          <input id="draftPortfolioId" placeholder="portfolio_id" />
+          <input id="draftSymbol" placeholder="symbol" value="600519" />
+          <select id="draftExchange">
+            <option value="SSE">SSE</option>
+            <option value="SZSE">SZSE</option>
+          </select>
+          <select id="draftSide">
+            <option value="BUY">BUY</option>
+            <option value="SELL">SELL</option>
+          </select>
+          <input id="draftPrice" placeholder="price" value="1000" />
+          <input id="draftQty" placeholder="qty" value="100" />
+          <button id="btnCreateDraft">Create Draft</button>
+          <button id="btnListDrafts">List Drafts</button>
+        </div>
+        <pre id="drafts" class="pre"></pre>
+
+        <div class="row">
+          <input id="draftIdOne" placeholder="draft_id (one)" />
+          <button id="btnRisk">Risk Check</button>
+          <input id="riskcheckId" placeholder="riskcheck_id" />
+          <button id="btnConfirm">Sim Confirm</button>
+        </div>
+        <pre id="tradeOut" class="pre"></pre>
+      </section>
+    </main>
+
+    <script src="./app.js"></script>
+  </body>
+</html>
